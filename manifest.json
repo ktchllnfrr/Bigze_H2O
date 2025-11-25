@@ -1,0 +1,21 @@
+{
+  "name": "Bigze H2O M - Water Delivery",
+  "short_name": "Bigze H2O",
+  "description": "Fresh, pure water delivered to your doorstep",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0074D9",
+  "theme_color": "#0074D9",
+  "icons": [
+    {
+      "src": "pics/BigzeH2O.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "pics/BigzeH2O.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

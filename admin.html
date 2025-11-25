@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bigze H2O M</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--light-gray);
+            min-height: 100vh;
+        }
+        .admin-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .admin-nav button {
+            background: var(--white);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .admin-nav button.active,
+        .admin-nav button:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        .admin-section {
+            display: none;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        .admin-section.active {
+            display: block;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .data-table th,
+        .data-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-blue);
+        }
+        .data-table th {
+            background: var(--light-blue);
+            font-weight: bold;
+        }
+        .data-table tr:hover {
+            background: var(--light-gray);
+        }
+        .action-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 0.25rem;
+            font-size: 0.9rem;
+        }
+        .action-btn.danger {
+            background: #dc3545;
+        }
+        .action-btn.success {
+            background: #28a745;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--light-blue);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .back-to-site {
+            background: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+            <a href="index.html" class="back-to-site">
+                <i class="fas fa-arrow-left"></i> Back to Site
+            </a>
+        </div>
+
+        <div class="admin-nav">
+            <button class="active" onclick="showSection('dashboard')">
+                <i class="fas fa-chart-bar"></i> Dashboard
+            </button>
+            <button onclick="showSection('products')">
+                <i class="fas fa-box"></i> Products
+            </button>
+            <button onclick="showSection('orders')">
+                <i class="fas fa-shopping-cart"></i> Orders
+            </button>
+            <button onclick="showSection('customers')">
+                <i class="fas fa-users"></i> Customers
+            </button>
+            <button onclick="showSection('reports')">
+                <i class="fas fa-chart-line"></i> Reports
+            </button>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="admin-section active">
+            <h2>Dashboard Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-orders">0</div>
+                    <div>Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-revenue">₱0</div>
+                    <div>Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-products">0</div>
+                    <div>Products</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="low-stock-count">0</div>
+                    <div>Low Stock Items</div>
+                </div>
+            </div>
+            
+            <h3>Recent Orders</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-orders">
+                    <tr>
+                        <td colspan="5">No orders yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Products Section -->
+        <div id="products" class="admin-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Product Management</h2>
+                <button class="cta-button" onclick="showAddProductForm()">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+            </div>
+
+            <div id="add-product-form" style="display: none; background: var(--light-gray); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+                <h3>Add New Product</h3>
+                <form id="product-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Product Name</label>
+                            <input type="text" id="product-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Price (₱)</label>
+                            <input type="number" id="product-price" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Size</label>
+                            <input type="text" id="product-size" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock</label>
+                            <input type="number" id="product-stock" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Image</label>
+                        <input type="file" id="product-image-file" accept="image/*">
+                        <small>Upload a product photo (JPG/PNG). Optional.</small>
+                    </div>
+                    <button type="submit" class="cta-button">Add Product</button>
+                    <button type="button" class="action-btn" onclick="hideAddProductForm()">Cancel</button>
+                </form>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Size</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="products-table"></tbody>
+            </table>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders" class="admin-section">
+            <h2>Order Management</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Delivery</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table">
+                    <tr>
+                        <td colspan="7">No orders yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Customers Section -->
+        <div id="customers" class="admin-section">
+            <h2>Customer Management</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Orders</th>
+                        <th>Total Spent</th>
+                    </tr>
+                </thead>
+                <tbody id="customers-table">
+                    <tr>
+                        <td colspan="6">No customers yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="admin-section">
+            <h2>Sales Reports</h2>
+            <div class="form-row" style="margin-bottom: 2rem;">
+                <div class="form-group">
+                    <label>From Date</label>
+                    <input type="date" id="report-from" value="">
+                </div>
+                <div class="form-group">
+                    <label>To Date</label>
+                    <input type="date" id="report-to" value="">
+                </div>
+            </div>
+            <button class="cta-button" onclick="generateReport()">
+                <i class="fas fa-chart-bar"></i> Generate Report
+            </button>
+            
+            <div id="report-results" style="margin-top: 2rem;"></div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
