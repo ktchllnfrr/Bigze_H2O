@@ -1,0 +1,1277 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #0074D9;
+    --secondary-color: #39CCCC;
+    --accent-color: #7FDBFF;
+    --dark-blue: #001f3f;
+    --light-blue: #B3E5FC;
+    --white: #FFFFFF;
+    --light-gray: #f8f9fa;
+    --dark-gray: #333333;
+    --shadow: 0 2px 10px rgba(0, 116, 217, 0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--dark-gray);
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navigation */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: 
+        linear-gradient(135deg, 
+            rgba(0, 116, 217, 0.95) 0%, 
+            rgba(57, 204, 204, 0.92) 50%, 
+            rgba(127, 219, 255, 0.90) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><defs><pattern id="water-bubbles" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.08)"/><circle cx="30" cy="30" r="1.5" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23water-bubbles)"/></svg>');
+    background-size: cover, 100% 100%;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 1000;
+    padding: 0.8rem 0;
+    box-shadow: 
+        0 8px 32px rgba(0, 116, 217, 0.2),
+        0 2px 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><g fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"><path d="M0,60 Q150,40 300,60 T600,60 Q750,40 900,60 T1200,60"><animate attributeName="d" values="M0,60 Q150,40 300,60 T600,60 Q750,40 900,60 T1200,60;M0,60 Q150,80 300,60 T600,60 Q750,80 900,60 T1200,60;M0,60 Q150,40 300,60 T600,60 Q750,40 900,60 T1200,60" dur="4s" repeatCount="indefinite"/></path><path d="M0,70 Q200,50 400,70 T800,70 Q1000,50 1200,70" opacity="0.6"><animate attributeName="d" values="M0,70 Q200,50 400,70 T800,70 Q1000,50 1200,70;M0,70 Q200,90 400,70 T800,70 Q1000,90 1200,70;M0,70 Q200,50 400,70 T800,70 Q1000,50 1200,70" dur="5s" repeatCount="indefinite"/></path><path d="M0,50 Q100,30 200,50 T400,50 Q500,30 600,50 T800,50 Q900,30 1000,50 T1200,50" opacity="0.4"><animate attributeName="d" values="M0,50 Q100,30 200,50 T400,50 Q500,30 600,50 T800,50 Q900,30 1000,50 T1200,50;M0,50 Q100,70 200,50 T400,50 Q500,70 600,50 T800,50 Q900,70 1000,50 T1200,50;M0,50 Q100,30 200,50 T400,50 Q500,30 600,50 T800,50 Q900,30 1000,50 T1200,50" dur="6s" repeatCount="indefinite"/></path></g></svg>');
+    background-size: 100% 100%;
+    pointer-events: none;
+    animation: waveFlow1 8s ease-in-out infinite;
+}
+
+.navbar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><g fill="rgba(255,255,255,0.1)"><path d="M0,80 Q300,60 600,80 T1200,80 L1200,120 L0,120 Z"><animate attributeName="d" values="M0,80 Q300,60 600,80 T1200,80 L1200,120 L0,120 Z;M0,80 Q300,100 600,80 T1200,80 L1200,120 L0,120 Z;M0,80 Q300,60 600,80 T1200,80 L1200,120 L0,120 Z" dur="7s" repeatCount="indefinite"/></path><path d="M0,90 Q200,70 400,90 T800,90 Q1000,70 1200,90 L1200,120 L0,120 Z" opacity="0.6"><animate attributeName="d" values="M0,90 Q200,70 400,90 T800,90 Q1000,70 1200,90 L1200,120 L0,120 Z;M0,90 Q200,110 400,90 T800,90 Q1000,110 1200,90 L1200,120 L0,120 Z;M0,90 Q200,70 400,90 T800,90 Q1000,70 1200,90 L1200,120 L0,120 Z" dur="9s" repeatCount="indefinite"/></path></g><g fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"><path d="M0,40 Q150,20 300,40 T600,40 Q750,20 900,40 T1200,40"><animate attributeName="d" values="M0,40 Q150,20 300,40 T600,40 Q750,20 900,40 T1200,40;M0,40 Q150,60 300,40 T600,40 Q750,60 900,40 T1200,40;M0,40 Q150,20 300,40 T600,40 Q750,20 900,40 T1200,40" dur="5s" repeatCount="indefinite"/></path><path d="M0,30 Q100,10 200,30 T400,30 Q500,10 600,30 T800,30 Q900,10 1000,30 T1200,30" opacity="0.7"><animate attributeName="d" values="M0,30 Q100,10 200,30 T400,30 Q500,10 600,30 T800,30 Q900,10 1000,30 T1200,30;M0,30 Q100,50 200,30 T400,30 Q500,50 600,30 T800,30 Q900,50 1000,30 T1200,30;M0,30 Q100,10 200,30 T400,30 Q500,10 600,30 T800,30 Q900,10 1000,30 T1200,30" dur="6s" repeatCount="indefinite"/></path></g></svg>');
+    background-size: 100% 100%;
+    pointer-events: none;
+    animation: waveFlow2 10s ease-in-out infinite reverse;
+}
+
+@keyframes waveFlow1 {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-20px); }
+}
+
+@keyframes waveFlow2 {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(20px); }
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    position: relative;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, 
+        var(--primary-color) 0%, 
+        var(--secondary-color) 50%, 
+        var(--accent-color) 100%);
+    border-radius: 20px;
+    box-shadow: 
+        0 8px 25px rgba(0, 116, 217, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    margin-right: 2rem;
+}
+
+.nav-logo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.nav-logo:hover::before {
+    left: 100%;
+}
+
+.nav-logo:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 35px rgba(0, 116, 217, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Custom Water Station Logo Icon */
+.nav-logo i {
+    display: none;
+}
+
+/* Water Icon Container */
+.nav-logo .water-drops,
+.nav-logo .water-level {
+    position: absolute;
+}
+
+.nav-logo .water-drops {
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 35px;
+    height: 35px;
+    pointer-events: none;
+}
+
+.nav-logo .water-drops::before,
+.nav-logo .water-drops::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
+}
+
+.nav-logo .water-drops::before {
+    width: 8px;
+    height: 8px;
+    top: 6px;
+    left: 18px;
+    animation: dropFloat 2.5s ease-in-out infinite;
+}
+
+.nav-logo .water-drops::after {
+    width: 6px;
+    height: 6px;
+    top: 20px;
+    left: 10px;
+    animation: dropFloat 2.5s ease-in-out infinite 0.8s;
+}
+
+.nav-logo .water-level {
+    left: 10px;
+    bottom: 6px;
+    width: 28px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 3px;
+    animation: waterFlow 2s ease-in-out infinite;
+}
+
+/* Brand Typography */
+.nav-logo .brand-text {
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-left: 3rem;
+    color: white;
+}
+
+.nav-logo .brand-name {
+    font-size: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.nav-logo .chemical-formula {
+    font-size: 1.3rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: baseline;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.nav-logo .chemical-formula .h-letter {
+    font-size: 1.3rem;
+}
+
+.nav-logo .chemical-formula .subscript {
+    font-size: 0.85rem;
+    vertical-align: sub;
+    line-height: 0;
+    margin-left: -0.05rem;
+}
+
+.nav-logo .chemical-formula .o-letter {
+    font-size: 1.3rem;
+    margin-left: 0.05rem;
+}
+
+/* Navigation Menu */
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 0.3rem;
+    align-items: center;
+}
+
+.nav-menu li {
+    position: relative;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.95);
+    font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+    padding: 0.7rem 1.1rem;
+    border-radius: 25px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: block;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-menu a:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px) scale(1.02);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 8px 25px rgba(0, 116, 217, 0.2),
+        0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+.nav-menu a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.05) 100%);
+    border-radius: 25px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.nav-menu a:hover::before {
+    opacity: 1;
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.8) 0%, 
+        rgba(127, 219, 255, 0.9) 50%, 
+        rgba(255, 255, 255, 0.8) 100%);
+    border-radius: 1px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-50%);
+    box-shadow: 0 0 8px rgba(127, 219, 255, 0.5);
+}
+
+.nav-menu a:hover::after {
+    width: 90%;
+}
+
+/* Active state for current page */
+.nav-menu a.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nav-menu a.active::after {
+    width: 90%;
+}
+
+/* Special styling for cart and login buttons */
+.nav-menu a[id="cart-btn"] {
+    background: linear-gradient(135deg, 
+        rgba(57, 204, 204, 0.9) 0%, 
+        rgba(127, 219, 255, 0.8) 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.8rem 1.3rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 4px 15px rgba(57, 204, 204, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    text-transform: none;
+}
+
+.nav-menu a[id="cart-btn"]:hover {
+    background: linear-gradient(135deg, 
+        rgba(0, 116, 217, 0.9) 0%, 
+        rgba(57, 204, 204, 0.8) 100%);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 
+        0 8px 25px rgba(57, 204, 204, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nav-menu a[id="login-btn"] {
+    background: linear-gradient(135deg, 
+        rgba(0, 116, 217, 0.9) 0%, 
+        rgba(0, 31, 63, 0.8) 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.8rem 1.3rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 4px 15px rgba(0, 116, 217, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    text-transform: none;
+}
+
+.nav-menu a[id="login-btn"]:hover {
+    background: linear-gradient(135deg, 
+        rgba(0, 31, 63, 0.9) 0%, 
+        rgba(0, 116, 217, 0.8) 100%);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 
+        0 8px 25px rgba(0, 116, 217, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Icon styling for cart */
+.nav-menu a[id="cart-btn"] i {
+    margin-right: 0.4rem;
+    font-size: 0.9rem;
+}
+
+/* Cart count badge */
+.nav-menu a[id="cart-btn"] #cart-count {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--primary-color);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    margin-left: 0.3rem;
+    min-width: 18px;
+    text-align: center;
+    display: inline-block;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.hamburger:hover {
+    background: rgba(0, 116, 217, 0.1);
+}
+
+.hamburger span {
+    width: 28px;
+    height: 3px;
+    background: var(--primary-color);
+    margin: 3px 0;
+    transition: 0.3s;
+    border-radius: 2px;
+}
+
+/* Animations */
+@keyframes dropFloat {
+    0%, 100% { 
+        transform: rotate(-45deg) translateY(0px);
+        opacity: 0.9;
+    }
+    50% { 
+        transform: rotate(-45deg) translateY(-3px);
+        opacity: 1;
+    }
+}
+
+@keyframes waterFlow {
+    0%, 100% { 
+        background: rgba(255, 255, 255, 0.8);
+    }
+    50% { 
+        background: rgba(255, 255, 255, 1);
+    }
+}
+
+/* Hero Section */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: 
+        linear-gradient(135deg, rgba(179, 229, 252, 0.9) 0%, rgba(127, 219, 255, 0.9) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><pattern id="water-drops" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="2" fill="%23B3E5FC" opacity="0.3"/></pattern></defs><rect width="100%" height="100%" fill="url(%23water-drops)"/><g transform="translate(100,200)"><rect x="0" y="100" width="200" height="300" fill="%230074D9" opacity="0.6" rx="10"/><rect x="20" y="120" width="160" height="20" fill="%2339CCCC" rx="5"/><rect x="20" y="150" width="160" height="20" fill="%2339CCCC" rx="5"/><rect x="20" y="180" width="160" height="20" fill="%2339CCCC" rx="5"/><circle cx="100" cy="250" r="40" fill="%237FDBFF" opacity="0.8"/><text x="100" y="255" text-anchor="middle" fill="%23001f3f" font-size="12" font-weight="bold">H₂O</text></g><g transform="translate(400,150)"><rect x="0" y="0" width="60" height="200" fill="%230074D9" opacity="0.7" rx="30"/><rect x="70" y="0" width="60" height="200" fill="%230074D9" opacity="0.7" rx="30"/><rect x="140" y="0" width="60" height="200" fill="%230074D9" opacity="0.7" rx="30"/><rect x="210" y="0" width="60" height="200" fill="%230074D9" opacity="0.7" rx="30"/></g><g transform="translate(800,180)"><rect x="0" y="50" width="150" height="200" fill="%2339CCCC" opacity="0.5" rx="10"/><rect x="20" y="70" width="110" height="30" fill="%230074D9" opacity="0.8" rx="5"/><circle cx="75" cy="150" r="25" fill="%237FDBFF"/><path d="M60 140 Q75 125 90 140 Q75 155 60 140" fill="%23B3E5FC"/></g></svg>'),
+        radial-gradient(circle at 30% 70%, rgba(57, 204, 204, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(0, 116, 217, 0.2) 0%, transparent 50%);
+    background-size: cover, 100% 100%, 400px 400px, 300px 300px;
+    background-position: center, center, left bottom, right top;
+    background-repeat: no-repeat;
+    padding: 100px 20px 50px;
+    position: relative;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><style>.water-flow{fill:none;stroke:%2339CCCC;stroke-width:2;opacity:0.4;animation:flow 3s ease-in-out infinite;}</style></defs><path class="water-flow" d="M10,20 Q30,10 50,20 T90,20"/><path class="water-flow" d="M10,40 Q30,30 50,40 T90,40" style="animation-delay:0.5s"/><path class="water-flow" d="M10,60 Q30,50 50,60 T90,60" style="animation-delay:1s"/><path class="water-flow" d="M10,80 Q30,70 50,80 T90,80" style="animation-delay:1.5s"/></svg>') repeat;
+    background-size: 200px 100px;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+.hero-content {
+    flex: 1;
+    max-width: 600px;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--dark-blue);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: var(--dark-gray);
+    margin-bottom: 2rem;
+}
+
+.hero-benefits {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.benefit {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.benefit i {
+    font-size: 1.5rem;
+}
+
+.cta-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: var(--shadow);
+}
+
+.cta-button:hover {
+    background: var(--dark-blue);
+    transform: translateY(-2px);
+}
+
+.hero-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.water-bottle {
+    width: 300px;
+    height: 400px;
+    background: 
+        linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.9) 0%,
+            rgba(179, 229, 252, 0.8) 20%,
+            rgba(127, 219, 255, 0.9) 40%,
+            rgba(57, 204, 204, 0.8) 60%,
+            rgba(0, 116, 217, 0.9) 80%,
+            rgba(0, 31, 63, 0.9) 100%
+        );
+    border-radius: 50px 50px 20px 20px;
+    position: relative;
+    box-shadow: 
+        0 20px 40px rgba(0, 116, 217, 0.3),
+        inset -10px 0 20px rgba(255, 255, 255, 0.3),
+        inset 10px 0 20px rgba(0, 31, 63, 0.2);
+    animation: float 3s ease-in-out infinite;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Bottle Cap */
+.water-bottle::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 40px;
+    background: 
+        linear-gradient(135deg, 
+            #2c3e50 0%, 
+            #34495e 50%, 
+            #2c3e50 100%);
+    border-radius: 15px;
+    box-shadow: 
+        0 5px 10px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    border: 2px solid #1a252f;
+}
+
+/* Water Level and Bubbles */
+.water-bottle::after {
+    content: '';
+    position: absolute;
+    bottom: 30px;
+    left: 20px;
+    right: 20px;
+    height: 320px;
+    background: 
+        linear-gradient(180deg,
+            rgba(179, 229, 252, 0.3) 0%,
+            rgba(127, 219, 255, 0.6) 30%,
+            rgba(57, 204, 204, 0.8) 70%,
+            rgba(0, 116, 217, 0.9) 100%
+        );
+    border-radius: 30px 30px 10px 10px;
+    box-shadow: 
+        inset 0 0 20px rgba(255, 255, 255, 0.4),
+        inset 0 0 40px rgba(0, 116, 217, 0.3);
+}
+
+/* Bottle Neck */
+.water-bottle .bottle-neck {
+    position: absolute;
+    top: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background: 
+        linear-gradient(135deg,
+            rgba(255, 255, 255, 0.8) 0%,
+            rgba(179, 229, 252, 0.6) 50%,
+            rgba(127, 219, 255, 0.8) 100%
+        );
+    border-radius: 30px 30px 5px 5px;
+    box-shadow: 
+        inset -5px 0 10px rgba(255, 255, 255, 0.4),
+        inset 5px 0 10px rgba(0, 31, 63, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Water Bubbles */
+.water-bottle .bubble-1,
+.water-bottle .bubble-2,
+.water-bottle .bubble-3 {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: bubble-float 4s ease-in-out infinite;
+}
+
+.water-bottle .bubble-1 {
+    width: 8px;
+    height: 8px;
+    top: 300px;
+    left: 60px;
+    animation-delay: 0s;
+}
+
+.water-bottle .bubble-2 {
+    width: 12px;
+    height: 12px;
+    top: 250px;
+    right: 70px;
+    animation-delay: 1s;
+}
+
+.water-bottle .bubble-3 {
+    width: 6px;
+    height: 6px;
+    top: 280px;
+    left: 120px;
+    animation-delay: 2s;
+}
+
+/* Light Reflection */
+.water-bottle .reflection {
+    position: absolute;
+    top: 80px;
+    left: 30px;
+    width: 40px;
+    height: 280px;
+    background: 
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.8) 0%,
+            rgba(255, 255, 255, 0.4) 30%,
+            rgba(255, 255, 255, 0.1) 70%,
+            transparent 100%
+        );
+    border-radius: 20px;
+    transform: skewY(-5deg);
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes flow {
+    0% { stroke-dasharray: 0 100; }
+    50% { stroke-dasharray: 50 50; }
+    100% { stroke-dasharray: 100 0; }
+}
+
+@keyframes bubble-float {
+    0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+    50% { transform: translateY(-20px) scale(1.2); opacity: 0.9; }
+}
+
+/* Products Section */
+.products-section {
+    padding: 80px 0;
+    background: var(--white);
+    /* Add water-themed background */
+    background: 
+        linear-gradient(135deg, rgba(179,229,252,0.25) 0%, rgba(127,219,255,0.18) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="200"><circle cx="100" cy="100" r="80" fill="%237FDBFF" opacity="0.08"/><circle cx="400" cy="80" r="60" fill="%230074D9" opacity="0.06"/><ellipse cx="300" cy="150" rx="120" ry="40" fill="%2339CCCC" opacity="0.07"/></svg>');
+    background-repeat: no-repeat;
+    background-size: cover, 100% 100%;
+    background-position: center, center;
+}
+
+.products-section h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--dark-blue);
+    margin-bottom: 3rem;
+}
+
+.search-filter {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.search-filter input,
+.search-filter select {
+    padding: 0.8rem;
+    border: 2px solid var(--light-blue);
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.search-filter input:focus,
+.search-filter select:focus {
+    border-color: var(--primary-color);
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.product-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+    border: 2px solid var(--light-blue);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+}
+
+.product-info h3 {
+    color: var(--dark-blue);
+    margin-bottom: 0.5rem;
+}
+
+.product-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stock-status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+.in-stock {
+    background: #d4edda;
+    color: #155724;
+}
+
+.low-stock {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.out-of-stock {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.quantity-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-input {
+    width: 60px;
+    text-align: center;
+    padding: 0.3rem;
+    border: 1px solid var(--light-blue);
+    border-radius: 5px;
+}
+
+.add-to-cart {
+    width: 100%;
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.add-to-cart:hover {
+    background: var(--primary-color);
+}
+
+.add-to-cart:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* About Section */
+.about-section {
+    padding: 80px 0;
+    background: var(--light-gray);
+}
+
+.about-section h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--dark-blue);
+    margin-bottom: 3rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.feature {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+}
+
+.feature i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.feature h3 {
+    color: var(--dark-blue);
+    margin-bottom: 1rem;
+}
+
+/* Contact Section */
+.contact-section {
+    padding: 80px 0;
+    background: var(--white);
+}
+
+.contact-section h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--dark-blue);
+    margin-bottom: 3rem;
+}
+
+.contact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.contact-item i {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 1rem;
+    border: 2px solid var(--light-blue);
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    border-color: var(--primary-color);
+}
+
+.contact-form button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.contact-form button:hover {
+    background: var(--dark-blue);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--dark-gray);
+}
+
+.close:hover {
+    color: var(--primary-color);
+}
+
+.cart-total {
+    border-top: 2px solid var(--light-blue);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.cart-total .total {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.delivery-options {
+    margin: 1rem 0;
+}
+
+.delivery-options label {
+    display: block;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+
+.checkout-btn {
+    width: 100%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.tab-btn {
+    flex: 1;
+    background: var(--light-gray);
+    border: none;
+    padding: 0.8rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.tab-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.auth-form input,
+.auth-form textarea {
+    padding: 0.8rem;
+    border: 2px solid var(--light-blue);
+    border-radius: 8px;
+    outline: none;
+}
+
+.auth-form button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.success-content {
+    text-align: center;
+}
+
+.success-content i {
+    font-size: 4rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+.success-content button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+/* Footer */
+.footer {
+    background: var(--dark-blue);
+    color: white;
+    padding: 3rem 0 1rem;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-section h3 {
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+}
+
+.footer-section a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s;
+}
+
+.footer-section a:hover {
+    color: var(--accent-color);
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-links a {
+    display: inline-block;
+    font-size: 1.5rem;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: 70px;
+        flex-direction: column;
+        background-color: white;
+        width: 100%;
+        text-align: center;
+        transition: 0.3s;
+        box-shadow: var(--shadow);
+        padding: 2rem 0;
+    }
+
+    .nav-menu.active {
+        left: 0;
+    }
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 120px 20px 50px;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-benefits {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero-image {
+        margin-top: 2rem;
+    }
+
+    .water-bottle {
+        width: 200px;
+        height: 280px;
+    }
+
+    .contact-content {
+        grid-template-columns: 1fr;
+    }
+
+    .search-filter {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-filter input,
+    .search-filter select {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cart Item Styles */
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--light-blue);
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-quantity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 1rem;
+}
+
+.cart-item-remove {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

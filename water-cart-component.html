@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Cart Icon Demo</title>
+    <link href="water-cart-icon.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .demo-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .demo-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .demo-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #0074D9, #39CCCC);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 116, 217, 0.3);
+        }
+        
+        h1 {
+            color: #0074D9;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-section">
+        <h1>Water-Themed Shopping Cart Icon</h1>
+        <p>Shopee-style cart with water refilling station theme</p>
+        
+        <!-- Water Cart Icon Component -->
+        <div class="water-cart-container" id="waterCart">
+            <div class="water-cart-icon">
+                <!-- Water Jug Accent -->
+                <div class="water-jug-accent"></div>
+                
+                <!-- Cart SVG -->
+                <svg class="cart-svg" viewBox="0 0 24 24">
+                    <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
+                    <circle cx="9" cy="9" r="1"/>
+                    <circle cx="15" cy="9" r="1"/>
+                    <path d="M9 12H15C15.55 12 16 12.45 16 13S15.55 14 15 14H9C8.45 14 8 13.55 8 13S8.45 12 9 12Z"/>
+                </svg>
+                
+                <!-- Water Wave Effect -->
+                <div class="water-wave"></div>
+            </div>
+            
+            <!-- Notification Badge -->
+            <div class="cart-notification-badge" id="cartBadge">0</div>
+        </div>
+        
+        <div class="demo-buttons">
+            <button class="demo-btn" onclick="addToCart()">Add Item (+1)</button>
+            <button class="demo-btn" onclick="removeFromCart()">Remove Item (-1)</button>
+            <button class="demo-btn" onclick="clearCart()">Clear Cart</button>
+            <button class="demo-btn" onclick="addMultiple()">Add 5 Items</button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Features</h2>
+        <ul style="text-align: left; max-width: 500px;">
+            <li><img src="Round_water_container.jpg" alt="Round Container"><strong>Water Theme:</strong> Blue gradient background with water droplets</li>
+            <li><img src="Slim_Gallon_Container.jpg" alt="Slim Container"><strong>Animated Elements:</strong> Floating droplets and wave effects</li>
+            <li><img src="Water_bottle.png" alt="Water Bottle"><strong>Shopee-Style Badge:</strong> Red notification badge with smooth animations</li>
+            <li> <strong>Modern Design:</strong> Glass morphism and gradient effects</li>
+            <li> <strong>Responsive:</strong> Adapts to different screen sizes</li>
+            <li> <strong>Interactive:</strong> Hover effects and click animations</li>
+            <li> <strong>Water Jug Accent:</strong> Subtle water container element</li>
+        </ul>
+    </div>
+
+    <script>
+        let cartCount = 0;
+        const cartBadge = document.getElementById('cartBadge');
+        const waterCart = document.getElementById('waterCart');
+
+        function updateCartBadge() {
+            cartBadge.textContent = cartCount;
+            
+            if (cartCount > 0) {
+                cartBadge.classList.add('show');
+                cartBadge.classList.add('update');
+                
+                // Remove update class after animation
+                setTimeout(() => {
+                    cartBadge.classList.remove('update');
+                }, 400);
+            } else {
+                cartBadge.classList.remove('show');
+            }
+        }
+
+        function addToCart() {
+            cartCount++;
+            updateCartBadge();
+            
+            // Add click animation to cart
+            waterCart.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                waterCart.style.transform = 'scale(1)';
+            }, 150);
+        }
+
+        function removeFromCart() {
+            if (cartCount > 0) {
+                cartCount--;
+                updateCartBadge();
+            }
+        }
+
+        function clearCart() {
+            cartCount = 0;
+            updateCartBadge();
+        }
+
+        function addMultiple() {
+            cartCount += 5;
+            updateCartBadge();
+            
+            // Special animation for multiple items
+            waterCart.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                waterCart.style.transform = 'scale(1)';
+            }, 300);
+        }
+
+        // Initialize
+        updateCartBadge();
+
+        // Add click event to cart
+        waterCart.addEventListener('click', function() {
+            // Cart click animation
+            this.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 100);
+            
+            // You can add cart opening functionality here
+            console.log('Cart clicked! Items:', cartCount);
+        });
+    </script>
+</body>
+</html>

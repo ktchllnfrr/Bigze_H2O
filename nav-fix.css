@@ -1,0 +1,37 @@
+/* Navigation Menu White Text Fix */
+.nav-menu a,
+.nav-menu a:visited,
+.nav-menu a:link,
+.nav-menu li a {
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 600 !important;
+}
+
+.nav-menu a:hover,
+.nav-menu a:focus {
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Make hamburger white too */
+.hamburger span {
+    background: white !important;
+}
+
+/* Mobile menu fix */
+@media (max-width: 768px) {
+    .nav-menu {
+        background: linear-gradient(135deg, 
+            rgba(0, 116, 217, 0.98) 0%, 
+            rgba(57, 204, 204, 0.95) 50%, 
+            rgba(127, 219, 255, 0.92) 100%) !important;
+        backdrop-filter: blur(20px) !important;
+    }
+    
+    .nav-menu a {
+        color: white !important;
+        margin: 0.3rem 1rem !important;
+        font-size: 1rem !important;
+    }
+}
