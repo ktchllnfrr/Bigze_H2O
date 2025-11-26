@@ -357,11 +357,9 @@ function loadOrdersTable() {
             <td>${order.deliveryType}</td>
             <td>
                 <select onchange="updateOrderStatus(${order.id}, this.value)">
-                    <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
                     <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
                     <option value="out-for-delivery" ${order.status === 'out-for-delivery' ? 'selected' : ''}>Out for Delivery</option>
                     <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                    <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                 </select>
             </td>
             <td>
