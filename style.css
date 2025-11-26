@@ -23,6 +23,12 @@ body {
     overflow-x: hidden;
 }
 
+/* Fluid media */
+img, video {
+    max-width: 100%;
+    height: auto;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -1158,6 +1164,16 @@ body {
         transition: 0.3s;
         box-shadow: var(--shadow);
         padding: 2rem 0;
+    }
+    .nav-menu a {
+        color: var(--dark-gray);
+        background: transparent;
+        border-color: rgba(0,0,0,0.06);
+    }
+    .nav-menu a:hover {
+        color: var(--primary-color);
+        background: rgba(0, 116, 217, 0.06);
+        border-color: rgba(0, 116, 217, 0.15);
     }
 
     .nav-menu.active {
