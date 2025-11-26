@@ -31,12 +31,9 @@ let adminProducts = [];
 // Initialize products from localStorage
 async function initializeAdminProducts() {
     const defaultProducts = [
-        { id: 1, name: "5 Gallon Water Jug", price: 120, size: "5 Gallons", stock: 50, image: "🚰" },
-        { id: 2, name: "3 Gallon Water Jug", price: 85, size: "3 Gallons", stock: 75, image: "💧" },
-        { id: 3, name: "1 Gallon Water Jug", price: 35, size: "1 Gallon", stock: 100, image: "🥤" },
-        { id: 4, name: "500ml Water Bottle", price: 15, size: "500ml", stock: 200, image: "🍼" },
-        { id: 5, name: "1.5L Water Bottle", price: 25, size: "1.5 Liters", stock: 150, image: "🧴" },
-        { id: 6, name: "Premium 5 Gallon Jug", price: 150, size: "5 Gallons", stock: 30, image: "💎" }
+         { id: 1, name: "Round Water Container", price: 120, size: "25L", stock: 50, image: "pics/Round_water_container.jpg" },
+        { id: 2, name: "Slim Water Gallon", price: 85, size: "20L", stock: 75, image: "pics/Slim_Gallon_Container.jpg" },
+        { id: 3, name: "Water Bottle", price: 35, size: "350mL", stock: 100, image: "pics/Water_bottle.png" },
     ];
     try {
         const rows = await apiGet('/products');
