@@ -2,65 +2,52 @@
 // Global variables
 let products = [];
 
+// Backend API base
+const API_BASE = 'http://localhost:3000/api';
+
+async function apiGet(path) {
+    const res = await fetch(`${API_BASE}${path}`);
+    if (!res.ok) throw new Error(`GET ${path} failed`);
+    return res.json();
+}
+async function apiPost(path, body) {
+    const res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+async function apiPut(path, body) {
+    const res = await fetch(`${API_BASE}${path}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+async function apiDelete(path) {
+    const res = await fetch(`${API_BASE}${path}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+
 // Initialize products from localStorage or use default data
-function initializeProducts() {
-    const defaultProducts = [
-        {
-            id: 1,
-            name: "5 Gallon Water Jug",
-            price: 120,
-            size: "5 Gallons",
-            stock: 50,
-            image: "🚰"
-        },
-        {
-            id: 2,
-            name: "3 Gallon Water Jug",
-            price: 85,
-            size: "3 Gallons", 
-            stock: 75,
-            image: "💧"
-        },
-        {
-            id: 3,
-            name: "1 Gallon Water Jug",
-            price: 35,
-            size: "1 Gallon",
-            stock: 100,
-            image: "🥤"
-        },
-        {
-            id: 4,
-            name: "500ml Water Bottle",
-            price: 15,
-            size: "500ml",
-            stock: 200,
-            image: "🍼"
-        },
-        {
-            id: 5,
-            name: "1.5L Water Bottle",
-            price: 25,
-            size: "1.5 Liters",
-            stock: 150,
-            image: "🧴"
-        },
-        {
-            id: 6,
-            name: "Premium 5 Gallon Jug",
-            price: 150,
-            size: "5 Gallons",
-            stock: 30,
-            image: "💎"
-        }
+async function initializeProducts() {
+    const fallbackProducts = [
+        { id: 1, name: "Round Water Container", price: 120, size: "25L", stock: 50, image: "pics/Round_water_container.jpg" },
+        { id: 2, name: "Slim Water Gallon", price: 85, size: "20L", stock: 75, image: "pics/Slim_Gallon_Container.jpg" },
+        { id: 3, name: "Water Bottle", price: 35, size: "350mL", stock: 100, image: "pics/Water_bottle.png" },
     ];
 
-    const storedProducts = localStorage.getItem('bigze-products');
-    if (storedProducts) {
-        products = JSON.parse(storedProducts);
-    } else {
-        products = defaultProducts;
+    try {
+        const remote = await apiGet('/products');
+        // map server shape to front-end shape (image_url -> image)
+        products = remote.map(p => ({ id: p.id, name: p.name, price: p.price, size: p.size || '', stock: p.stock ?? 0, image: p.image_url || '' }));
         saveProductsToStorage();
+    } catch (e) {
+        // fallback to localStorage or defaults
+        const storedProducts = localStorage.getItem('bigze-products');
+        if (storedProducts) {
+            products = JSON.parse(storedProducts);
+        } else {
+            products = fallbackProducts;
+            saveProductsToStorage();
+        }
     }
 }
 
@@ -96,8 +83,9 @@ let currentUser = null;
 let orders = [];
 
 // DOM Content Loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeProducts();
+document.addEventListener('DOMContentLoaded', async function() {
+    try { const saved = localStorage.getItem('bigze-current-user'); if (saved) currentUser = JSON.parse(saved); } catch {}
+    await initializeProducts();
     setupEventListeners();
     loadCartFromStorage();
     updateCartDisplay();
@@ -485,93 +473,57 @@ function showTab(tabName) {
     }
 }
 
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const email = formData.get('email') || e.target.querySelector('input[type="email"]').value;
-    const password = formData.get('password') || e.target.querySelector('input[type="password"]').value;
-    
-    // Check for admin credentials
-    // In script.js, modify handleLogin
+    const form = e.target;
+    const email = form.querySelector('input[type="email"]').value;
+    const password = form.querySelector('input[type="password"]').value;
+
+    // Admin shortcut
     if (email === 'admin@gmail.com' && password === 'admin123') {
-        // Redirect to admin, but consider adding a token or session
         localStorage.setItem('admin-session', 'true');
         window.location.href = 'admin.html';
         return;
     }
-    
-    // Get stored user data or prompt for name
-    let storedUsers = JSON.parse(localStorage.getItem('bigze-users') || '{}');
-    let userData = storedUsers[email];
-    
-    if (!userData) {
-        // New user - prompt for name
-        const userName = prompt('Welcome! Please enter your full name:');
-        if (!userData.name || userData.name.trim().length < 2) {
-            alert('Name must be at least 2 characters.');
-            return;
-        }
-        
-        userData = {
-            id: Date.now(),
-            name: userName,
-            email: email,
-            phone: '+63 123 456 7890',
-            address: '123 Main St, Manila'
-        };
-        
-        // Save user data
-        storedUsers[email] = userData;
-        localStorage.setItem('bigze-users', JSON.stringify(storedUsers));
+
+    try {
+        const { user } = await apiPost('/auth/login', { email, password });
+        currentUser = { id: user.id, name: user.full_name, email: user.email, phone: user.phone, address: user.address };
+        localStorage.setItem('bigze-current-user', JSON.stringify(currentUser));
+        closeModal('login-modal');
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn) loginBtn.textContent = `Welcome, ${currentUser.name}`;
+        showNotification('Login successful!');
+    } catch (err) {
+        showNotification('Login failed. Please check your credentials.');
     }
-    
-    currentUser = userData;
-    
-    closeModal('login-modal');
-    const loginBtn = document.getElementById('login-btn');
-    if (loginBtn) {
-        loginBtn.textContent = `Welcome, ${currentUser.name}`;
-    }
-    showNotification('Login successful!');
 }
 
-function handleSignup(e) {
+async function handleSignup(e) {
     e.preventDefault();
-    const inputs = e.target.querySelectorAll('input, textarea');
-    const userData = {};
-    
-    inputs.forEach(input => {
-        if (input.type === 'text' && input.placeholder === 'Full Name') userData.name = input.value;
-        else if (input.type === 'text' && input.placeholder === 'Phone Number') userData.phone = input.value;
-        else if (input.type === 'email') userData.email = input.value;
-        else if (input.type === 'password') userData.password = input.value;
-        else if (input.type === 'tel') userData.phone = input.value;
-        else if (input.tagName === 'TEXTAREA') userData.address = input.value;
-    });
-    
-    // Validate that name is provided
-    if (!userData.name || userData.name.trim() === '') {
+    const form = e.target;
+    const fullName = form.querySelector('input[placeholder="Full Name"]').value.trim();
+    const email = form.querySelector('input[type="email"]').value.trim();
+    const password = form.querySelector('input[type="password"]').value;
+    const phone = form.querySelector('input[type="tel"]').value.trim();
+    const address = form.querySelector('textarea').value.trim();
+
+    if (!fullName) {
         alert('Please enter your full name');
         return;
     }
-    
-    // Create new user account
-    currentUser = {
-        id: Date.now(),
-        name: userData.name.trim(),
-        email: userData.email,
-        phone: userData.phone || '+63 123 456 7890',
-        address: userData.address || '123 Main St, Manila'
-    };
-    
-    // Save to localStorage
-    let storedUsers = JSON.parse(localStorage.getItem('bigze-users') || '{}');
-    storedUsers[userData.email] = currentUser;
-    localStorage.setItem('bigze-users', JSON.stringify(storedUsers));
-    
-    closeModal('login-modal');
-    document.getElementById('login-btn').textContent = `Welcome, ${currentUser.name}`;
-    showNotification(`Account created successfully! Welcome ${currentUser.name}!`);
+
+    try {
+        const { user } = await apiPost('/auth/signup', { fullName, email, password, phone, address });
+        currentUser = { id: user.id, name: user.full_name, email: user.email, phone: user.phone, address: user.address };
+        localStorage.setItem('bigze-current-user', JSON.stringify(currentUser));
+        closeModal('login-modal');
+        document.getElementById('login-btn').textContent = `Welcome, ${currentUser.name}`;
+        showNotification(`Account created successfully! Welcome ${currentUser.name}!`);
+    } catch (err) {
+        const msg = ('' + err).includes('409') ? 'Email already registered' : 'Signup failed';
+        showNotification(msg);
+    }
 }
 
 // Checkout Functions
@@ -590,60 +542,67 @@ function handleDeliveryChange() {
     updateCartModal();
 }
 
-function checkout() {
+async function checkout() {
     if (cart.length === 0) {
         alert('Your cart is empty!');
         return;
     }
-    
+
     if (!currentUser) {
         alert('Please login to place an order!');
         openModal('login-modal');
         closeModal('cart-modal');
         return;
     }
-    
+
     const deliveryType = document.querySelector('input[name="delivery"]:checked').value;
     const deliveryTime = document.getElementById('delivery-time').value;
-    
+
     if (deliveryType === 'scheduled' && !deliveryTime) {
         alert('Please select a delivery time!');
         return;
     }
-    
-    // Create order
-    const order = {
-        id: 'ORD' + Date.now(),
-        customerId: currentUser.id,
-        items: [...cart],
-        subtotal: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        deliveryFee: getDeliveryFee(),
-        total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + getDeliveryFee(),
-        deliveryType: deliveryType,
-        deliveryTime: deliveryTime || 'Same day',
-        status: 'confirmed',
-        date: new Date().toISOString()
-    };
-    
-    orders.push(order);
-    
-    // Save order to localStorage
-    saveOrderToStorage(order);
-    
-    // Clear cart
-    cart = [];
-    updateCartDisplay();
-    saveCartToStorage();
-    
-    // Show success
-    closeModal('cart-modal');
-    document.getElementById('order-id').textContent = order.id;
-    openModal('success-modal');
-    
-    // Simulate SMS/Email notification
-    setTimeout(() => {
-        showNotification('Order confirmation sent via SMS and Email!');
-    }, 2000);
+
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = getDeliveryFee();
+    const total = subtotal + deliveryFee;
+
+    try {
+        const payload = {
+            customer_id: currentUser.id,
+            items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+            total,
+            delivery: deliveryType === 'same-day' ? `same-day` : `scheduled:${deliveryTime || ''}`,
+            status: 'confirmed'
+        };
+        const created = await apiPost('/orders', payload);
+
+        const order = {
+            id: created.order_id || ('ORD' + Date.now()),
+            customerId: currentUser.id,
+            items: [...cart],
+            subtotal,
+            deliveryFee,
+            total,
+            deliveryType,
+            deliveryTime: deliveryTime || 'Same day',
+            status: 'confirmed',
+            date: new Date().toISOString()
+        };
+        orders.push(order);
+        saveOrderToStorage(order);
+
+        cart = [];
+        updateCartDisplay();
+        saveCartToStorage();
+
+        closeModal('cart-modal');
+        document.getElementById('order-id').textContent = order.id;
+        openModal('success-modal');
+        setTimeout(() => showNotification('Order confirmation sent via SMS and Email!'), 1500);
+    } catch (err) {
+        showNotification('Checkout failed. Please try again.');
+    }
 }
 
 // Utility Functions
