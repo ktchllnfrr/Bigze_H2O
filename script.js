@@ -104,6 +104,10 @@ function setupEventListeners() {
         hamburger.addEventListener('click', () => {
             navMenu.classList.toggle('active');
         });
+        // Close menu when a link is clicked (mobile UX)
+        navMenu.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', () => navMenu.classList.remove('active'));
+        });
     }
 
     // Search functionality
