@@ -1,52 +1,22 @@
 
 // Admin Dashboard JavaScript
 
-// Backend API base
-const API_BASE = 'http://localhost:3000/api';
-
-async function apiGet(path) {
-    const res = await fetch(`${API_BASE}${path}`);
-    if (!res.ok) throw new Error(`GET ${path} failed`);
-    return res.json();
-}
-async function apiPost(path, body) {
-    const res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-}
-async function apiPut(path, body) {
-    const res = await fetch(`${API_BASE}${path}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-}
-async function apiDelete(path) {
-    const res = await fetch(`${API_BASE}${path}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-}
-
-// Data stores
+// Shared products data using localStorage
 let adminProducts = [];
 
 // Initialize products from localStorage
 async function initializeAdminProducts() {
-    const defaultProducts = [
-         { id: 1, name: "Round Water Container", price: 120, size: "25L", stock: 50, image: "pics/Round_water_container.jpg" },
-        { id: 2, name: "Slim Water Gallon", price: 85, size: "20L", stock: 75, image: "pics/Slim_Gallon_Container.jpg" },
-        { id: 3, name: "Water Bottle", price: 35, size: "350mL", stock: 100, image: "pics/Water_bottle.png" },
-    ];
     try {
-        const rows = await apiGet('/products');
-        adminProducts = rows.map(p => ({ id: p.id, name: p.name, price: p.price, size: p.size || '', stock: p.stock ?? 0, image: p.image_url || '' }));
-        saveAdminProductsToStorage();
-    } catch (e) {
-        const storedProducts = localStorage.getItem('bigze-products');
-        if (storedProducts) {
-            adminProducts = JSON.parse(storedProducts);
-        } else {
-            adminProducts = defaultProducts;
-            saveAdminProductsToStorage();
-        }
+        const response = await fetch('http://localhost:3000/api/products');
+        if (!response.ok) throw new Error('Failed to load products');
+        adminProducts = await response.json();
+    } catch (error) {
+        console.error(error);
+        // Fallback
+        adminProducts = [
+            { id: 1, name: "5 Gallon Water Jug", price: 120, size: "5 Gallons", stock: 50, image: "🚰" },
+            // ... defaults
+        ];
     }
 }
 
@@ -55,24 +25,65 @@ function saveAdminProductsToStorage() {
     localStorage.setItem('bigze-products', JSON.stringify(adminProducts));
 }
 
-let adminOrders = [];
-
-let adminCustomers = [];
-
-// Load customers from API
-async function loadCustomersFromServer() {
-    try {
-        adminCustomers = await apiGet('/customers');
-    } catch (e) {
-        adminCustomers = [];
+let adminOrders = [
+    {
+        id: 'ORD1701234567',
+        customerId: 1,
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        items: [
+            { id: 1, name: '5 Gallon Water Jug', price: 120, quantity: 2 },
+            { id: 4, name: '500ml Water Bottle', price: 15, quantity: 10 }
+        ],
+        subtotal: 390,
+        deliveryFee: 50,
+        total: 440,
+        deliveryType: 'same-day',
+        status: 'confirmed',
+        date: new Date('2024-01-15').toISOString()
+    },
+    {
+        id: 'ORD1701234568',
+        customerId: 2,
+        customerName: 'Jane Smith',
+        customerEmail: 'jane@example.com',
+        items: [
+            { id: 2, name: '3 Gallon Water Jug', price: 85, quantity: 3 }
+        ],
+        subtotal: 255,
+        deliveryFee: 0,
+        total: 255,
+        deliveryType: 'scheduled',
+        status: 'delivered',
+        date: new Date('2024-01-14').toISOString()
     }
-}
+];
+
+let adminCustomers = [
+    {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        phone: '+63 123 456 7890',
+        address: '123 Main St, Manila',
+        totalOrders: 5,
+        totalSpent: 2200
+    },
+    {
+        id: 2,
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        phone: '+63 987 654 3210',
+        address: '456 Oak Ave, Quezon City',
+        totalOrders: 3,
+        totalSpent: 765
+    }
+];
 
 // Initialize admin dashboard
-document.addEventListener('DOMContentLoaded', async function() {
-    await initializeAdminProducts();
-    await loadOrdersFromStorage();
-    await loadCustomersFromServer();
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAdminProducts();
+    loadOrdersFromStorage();
     updateDashboardStats();
     loadProductsTable();
     loadOrdersTable();
@@ -82,31 +93,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // Load orders from localStorage to sync with user orders
-async function loadOrdersFromStorage() {
-    try {
-        const rows = await apiGet('/orders');
-        adminOrders = rows.map(r => {
-            const items = r.items || [];
-            const subtotal = items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
-            const deliveryFee = Math.max(0, (r.total || 0) - subtotal);
-            return {
-                id: r.id, // DB id
-                orderId: r.order_id, // human-readable id
-                customerId: r.customer_id,
-                customerName: r.customer_id ? `Customer #${r.customer_id}` : 'Guest',
-                customerEmail: '',
-                items,
-                subtotal,
-                deliveryFee,
-                total: r.total,
-                deliveryType: (r.delivery || '').startsWith('scheduled') ? 'scheduled' : 'same-day',
-                status: r.status,
-                date: r.created_at
-            };
+function loadOrdersFromStorage() {
+    const storedOrders = JSON.parse(localStorage.getItem('bigze-orders') || '[]');
+    if (storedOrders.length > 0) {
+        // Merge stored orders with default admin orders, avoiding duplicates
+        storedOrders.forEach(storedOrder => {
+            const existingIndex = adminOrders.findIndex(order => order.id === storedOrder.id);
+            if (existingIndex > -1) {
+                // Update existing order
+                adminOrders[existingIndex] = storedOrder;
+            } else {
+                // Add new order
+                adminOrders.push(storedOrder);
+            }
         });
-    } catch (e) {
-        const storedOrders = JSON.parse(localStorage.getItem('bigze-orders') || '[]');
-        adminOrders = storedOrders;
     }
 }
 
@@ -216,7 +216,7 @@ function hideAddProductForm() {
 }
 
 function setupProductForm() {
-    document.getElementById('product-form').addEventListener('submit', async function(e) {
+    document.getElementById('product-form').addEventListener('submit', function(e) {
         e.preventDefault();
 
         const name = document.getElementById('product-name').value;
@@ -226,71 +226,75 @@ function setupProductForm() {
         const fileInput = document.getElementById('product-image-file');
         const file = fileInput && fileInput.files ? fileInput.files[0] : null;
 
-        const send = async (imageValue) => {
-            try {
-                const created = await apiPost('/products', { name, price, size, stock, image_url: imageValue || '' });
-                const newProduct = { id: created.id, name: created.name, price: created.price, size: created.size || '', stock: created.stock ?? 0, image: created.image_url || '' };
-                adminProducts.push(newProduct);
-                saveAdminProductsToStorage();
-                loadProductsTable();
-                updateDashboardStats();
-                hideAddProductForm();
-                showNotification('Product added successfully!');
-            } catch (err) {
-                showNotification('Failed to add product.');
-            }
+        const newId = adminProducts.length ? Math.max(...adminProducts.map(p => p.id)) + 1 : 1;
+
+        const finalizeSave = (imageValue) => {
+            const newProduct = {
+                id: newId,
+                name,
+                price,
+                size,
+                stock,
+                image: imageValue || ''
+            };
+            adminProducts.push(newProduct);
+            saveAdminProductsToStorage(); // Save to localStorage
+            loadProductsTable();
+            updateDashboardStats();
+            hideAddProductForm();
+            showNotification('Product added successfully!');
         };
 
         if (file) {
             const reader = new FileReader();
-            reader.onload = () => send(reader.result);
-            reader.onerror = () => send('');
+            reader.onload = () => finalizeSave(reader.result);
+            reader.onerror = () => {
+                console.error('Image load failed');
+                finalizeSave('');
+            };
             reader.readAsDataURL(file);
         } else {
-            send('');
+            finalizeSave('');
         }
     });
 }
 
-async function editProduct(productId) {
+function editProduct(productId) {
     const product = adminProducts.find(p => p.id === productId);
     if (!product) return;
-
-    const newName = prompt('Enter new product name:', product.name) ?? product.name;
-    const newPriceInput = prompt('Enter new price:', product.price);
-    const newPrice = (newPriceInput !== null && !isNaN(newPriceInput)) ? parseFloat(newPriceInput) : product.price;
-    const newSize = prompt('Enter new size:', product.size) ?? product.size;
-
-    try {
-        const updated = await apiPut(`/products/${product.id}`, { name: newName, price: newPrice, size: newSize });
-        product.name = updated.name;
-        product.price = updated.price;
-        product.size = updated.size || '';
-        saveAdminProductsToStorage();
-        loadProductsTable();
-        updateDashboardStats();
-        showNotification('Product updated successfully!');
-    } catch (err) {
-        showNotification('Failed to update product.');
+    
+    const newName = prompt('Enter new product name:', product.name);
+    if (newName && newName !== product.name) {
+        product.name = newName;
     }
+    
+    const newPrice = prompt('Enter new price:', product.price);
+    if (newPrice && !isNaN(newPrice)) {
+        product.price = parseFloat(newPrice);
+    }
+    
+    const newSize = prompt('Enter new size:', product.size);
+    if (newSize && newSize !== product.size) {
+        product.size = newSize;
+    }
+    
+    saveAdminProductsToStorage(); // Save to localStorage
+    loadProductsTable();
+    updateDashboardStats();
+    showNotification('Product updated successfully!');
 }
 
-async function updateStock(productId) {
+function updateStock(productId) {
     const product = adminProducts.find(p => p.id === productId);
     if (!product) return;
-
+    
     const newStock = prompt(`Current stock: ${product.stock}\nEnter new stock quantity:`, product.stock);
     if (newStock !== null && !isNaN(newStock)) {
-        try {
-            const updated = await apiPut(`/products/${product.id}`, { stock: parseInt(newStock) });
-            product.stock = updated.stock ?? parseInt(newStock);
-            saveAdminProductsToStorage();
-            loadProductsTable();
-            updateDashboardStats();
-            showNotification('Stock updated successfully!');
-        } catch (err) {
-            showNotification('Failed to update stock.');
-        }
+        product.stock = parseInt(newStock);
+        saveAdminProductsToStorage(); // Save to localStorage
+        loadProductsTable();
+        updateDashboardStats();
+        showNotification('Stock updated successfully!');
     }
 }
 
@@ -301,21 +305,16 @@ function updateProductImage(productId) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = async (e) => {
+    input.onchange = (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = async () => {
-            try {
-                const updated = await apiPut(`/products/${product.id}`, { image_url: reader.result });
-                product.image = updated.image_url || reader.result;
-                saveAdminProductsToStorage();
-                loadProductsTable();
-                updateDashboardStats();
-                showNotification('Product image updated successfully!');
-            } catch (err) {
-                showNotification('Failed to upload image. Please try again.');
-            }
+        reader.onload = () => {
+            product.image = reader.result; // Save as Data URL
+            saveAdminProductsToStorage();
+            loadProductsTable();
+            updateDashboardStats();
+            showNotification('Product image updated successfully!');
         };
         reader.onerror = () => showNotification('Failed to upload image. Please try again.');
         reader.readAsDataURL(file);
@@ -323,18 +322,15 @@ function updateProductImage(productId) {
     input.click();
 }
 
-async function deleteProduct(productId) {
+function deleteProduct(productId) {
     if (confirm('Are you sure you want to delete this product?')) {
-        try {
-            await apiDelete(`/products/${productId}`);
-            const index = adminProducts.findIndex(p => p.id === productId);
-            if (index > -1) adminProducts.splice(index, 1);
-            saveAdminProductsToStorage();
+        const index = adminProducts.findIndex(p => p.id === productId);
+        if (index > -1) {
+            adminProducts.splice(index, 1);
+            saveAdminProductsToStorage(); // Save to localStorage
             loadProductsTable();
             updateDashboardStats();
             showNotification('Product deleted successfully!');
-        } catch (err) {
-            showNotification('Failed to delete product.');
         }
     }
 }
@@ -350,23 +346,25 @@ function loadOrdersTable() {
     
     ordersTable.innerHTML = adminOrders.map(order => `
         <tr>
-            <td>${order.orderId || order.id}</td>
-            <td>${order.customerName}<br><small>${order.customerEmail || ''}</small></td>
+            <td>${order.id}</td>
+            <td>${order.customerName}<br><small>${order.customerEmail}</small></td>
             <td>${order.items.length} items</td>
             <td>₱${order.total}</td>
             <td>${order.deliveryType}</td>
             <td>
-                <select onchange="updateOrderStatus(${order.id}, this.value)">
+                <select onchange="updateOrderStatus('${order.id}', this.value)">
+                    <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
                     <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
                     <option value="out-for-delivery" ${order.status === 'out-for-delivery' ? 'selected' : ''}>Out for Delivery</option>
                     <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                    <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                 </select>
             </td>
             <td>
-                <button class="action-btn" onclick="viewOrderDetails(${order.id})">
+                <button class="action-btn" onclick="viewOrderDetails('${order.id}')">
                     <i class="fas fa-eye"></i> View
                 </button>
-                <button class="action-btn danger" onclick="deleteOrder(${order.id})">
+                <button class="action-btn danger" onclick="deleteOrder('${order.id}')">
                     <i class="fas fa-trash"></i> Delete
                 </button>
             </td>
@@ -374,31 +372,36 @@ function loadOrdersTable() {
     `).join('');
 }
 
-async function updateOrderStatus(orderDbId, newStatus) {
-    const order = adminOrders.find(o => o.id === orderDbId);
-    if (!order) return;
-    try {
-        await apiPut(`/orders/${orderDbId}`, { status: newStatus });
+function updateOrderStatus(orderId, newStatus) {
+    const order = adminOrders.find(o => o.id === orderId);
+    if (order) {
         order.status = newStatus;
-        showNotification(`Order ${order.orderId || orderDbId} status updated to ${newStatus}`);
+        
+        // Update the order in user's localStorage as well
+        let allOrders = JSON.parse(localStorage.getItem('bigze-orders') || '[]');
+        const userOrderIndex = allOrders.findIndex(o => o.id === orderId);
+        if (userOrderIndex > -1) {
+            allOrders[userOrderIndex].status = newStatus;
+            localStorage.setItem('bigze-orders', JSON.stringify(allOrders));
+        }
+        
+        showNotification(`Order ${orderId} status updated to ${newStatus}`);
         updateDashboardStats();
-    } catch (e) {
-        showNotification('Failed to update order status.');
     }
 }
 
-function viewOrderDetails(orderDbId) {
-    const order = adminOrders.find(o => o.id === orderDbId);
+function viewOrderDetails(orderId) {
+    const order = adminOrders.find(o => o.id === orderId);
     if (!order) return;
     
     const itemsList = order.items.map(item => 
         `${item.name} x${item.quantity} = ₱${item.price * item.quantity}`
     ).join('\n');
     
-    alert(`Order Details: ${order.orderId || orderDbId}
+    alert(`Order Details: ${orderId}
     
 Customer: ${order.customerName}
-Email: ${order.customerEmail || ''}
+Email: ${order.customerEmail}
 Date: ${new Date(order.date).toLocaleString()}
 
 Items:
@@ -412,17 +415,14 @@ Delivery Type: ${order.deliveryType}
 Status: ${order.status}`);
 }
 
-async function deleteOrder(orderDbId) {
+function deleteOrder(orderId) {
     if (confirm('Are you sure you want to delete this order?')) {
-        try {
-            await apiDelete(`/orders/${orderDbId}`);
-            const index = adminOrders.findIndex(o => o.id === orderDbId);
-            if (index > -1) adminOrders.splice(index, 1);
+        const index = adminOrders.findIndex(o => o.id === orderId);
+        if (index > -1) {
+            adminOrders.splice(index, 1);
             loadOrdersTable();
             updateDashboardStats();
             showNotification('Order deleted successfully!');
-        } catch (e) {
-            showNotification('Failed to delete order.');
         }
     }
 }
