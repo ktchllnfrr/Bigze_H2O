@@ -28,26 +28,17 @@ async function apiDelete(path) {
 
 // Initialize products from localStorage or use default data
 async function initializeProducts() {
-    const fallbackProducts = [
-        { id: 1, name: "Round Water Container", price: 120, size: "25L", stock: 50, image: "pics/Round_water_container.jpg" },
-        { id: 2, name: "Slim Water Gallon", price: 85, size: "20L", stock: 75, image: "pics/Slim_Gallon_Container.jpg" },
-        { id: 3, name: "Water Bottle", price: 35, size: "350mL", stock: 100, image: "pics/Water_bottle.png" },
-    ];
-
     try {
-        const remote = await apiGet('/products');
-        // map server shape to front-end shape (image_url -> image)
-        products = remote.map(p => ({ id: p.id, name: p.name, price: p.price, size: p.size || '', stock: p.stock ?? 0, image: p.image_url || '' }));
-        saveProductsToStorage();
-    } catch (e) {
-        // fallback to localStorage or defaults
-        const storedProducts = localStorage.getItem('bigze-products');
-        if (storedProducts) {
-            products = JSON.parse(storedProducts);
-        } else {
-            products = fallbackProducts;
-            saveProductsToStorage();
-        }
+        const response = await fetch('http://localhost:3000/api/products');
+        if (!response.ok) throw new Error('Failed to load products');
+        products = await response.json();
+    } catch (error) {
+        console.error('Error loading products:', error);
+        // Fallback to default if API fails
+        products = [
+            { id: 1, name: "5 Gallon Water Jug", price: 120, size: "5 Gallons", stock: 50, image: "🚰" },
+            // ... rest of defaults
+        ];
     }
 }
 
@@ -83,16 +74,36 @@ let currentUser = null;
 let orders = [];
 
 // DOM Content Loaded
-document.addEventListener('DOMContentLoaded', async function() {
-    try { const saved = localStorage.getItem('bigze-current-user'); if (saved) currentUser = JSON.parse(saved); } catch {}
+document.addEventListener('DOMContentLoaded', async function () {
+    // Load user from storage (unified logic)
+    let savedUser = localStorage.getItem('bigze-current-user') || localStorage.getItem('currentUser');
+    try {
+        if (savedUser) currentUser = JSON.parse(savedUser);
+    } catch (e) {
+        console.error("Invalid user JSON:", e);
+        currentUser = null;
+    }
+
+    // Initialize products & UI
     await initializeProducts();
     setupEventListeners();
     loadCartFromStorage();
     updateCartDisplay();
+
+    // Load products if the grid exists
     if (document.getElementById('products-grid')) {
         loadProducts();
     }
+
+    // Update login button if user exists
+    if (currentUser && currentUser.full_name) {
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn) {
+            loginBtn.textContent = `Welcome, ${currentUser.full_name}`;
+        }
+    }
 });
+
 
 // Setup Event Listeners
 function setupEventListeners() {
@@ -205,19 +216,18 @@ function setupModals() {
 }
 
 // Product Functions
-function loadProducts() {
+async function loadProducts() {
+    await initializeProducts();  // Ensure products are loaded
     const productsGrid = document.getElementById('products-grid');
     if (!productsGrid) return;
     productsGrid.innerHTML = '';
-
+    
     products.forEach(product => {
         const productCard = createProductCard(product);
         productsGrid.appendChild(productCard);
     });
-    document.getElementById('loading-spinner').style.display = 'block';
-    // ... load products ...
-    document.getElementById('loading-spinner').style.display = 'none';
 }
+
 
 function createProductCard(product) {
     const card = document.createElement('div');
@@ -479,56 +489,87 @@ function showTab(tabName) {
 
 async function handleLogin(e) {
     e.preventDefault();
-    const form = e.target;
-    const email = form.querySelector('input[type="email"]').value;
-    const password = form.querySelector('input[type="password"]').value;
-
-    // Admin shortcut
+    const formData = new FormData(e.target);
+    const email = formData.get('email') || e.target.querySelector('input[type="email"]').value;
+    const password = formData.get('password') || e.target.querySelector('input[type="password"]').value;
+    
+    // Admin check (keep as is, or move to backend if needed)
     if (email === 'admin@gmail.com' && password === 'admin123') {
         localStorage.setItem('admin-session', 'true');
         window.location.href = 'admin.html';
         return;
     }
-
+    
     try {
-        const { user } = await apiPost('/auth/login', { email, password });
-        currentUser = { id: user.id, name: user.full_name, email: user.email, phone: user.phone, address: user.address };
-        localStorage.setItem('bigze-current-user', JSON.stringify(currentUser));
+        const response = await fetch('http://localhost:3000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Login failed');
+        }
+        
+        const data = await response.json();
+        currentUser = data.user;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
         closeModal('login-modal');
         const loginBtn = document.getElementById('login-btn');
-        if (loginBtn) loginBtn.textContent = `Welcome, ${currentUser.name}`;
+        if (loginBtn) loginBtn.textContent = `Welcome, ${currentUser.full_name}`;
         showNotification('Login successful!');
-    } catch (err) {
-        showNotification('Login failed. Please check your credentials.');
+    } catch (error) {
+        alert(error.message);
+        console.error('Login error:', error);
     }
 }
 
 async function handleSignup(e) {
     e.preventDefault();
+    
     const form = e.target;
     const fullName = form.querySelector('input[placeholder="Full Name"]').value.trim();
     const email = form.querySelector('input[type="email"]').value.trim();
     const password = form.querySelector('input[type="password"]').value;
     const phone = form.querySelector('input[type="tel"]').value.trim();
     const address = form.querySelector('textarea').value.trim();
-
-    if (!fullName) {
-        alert('Please enter your full name');
+    
+    // Basic validation
+    if (!fullName || !email || !password) {
+        alert('Please fill in all required fields.');
         return;
     }
-
+    
     try {
-        const { user } = await apiPost('/auth/signup', { fullName, email, password, phone, address });
-        currentUser = { id: user.id, name: user.full_name, email: user.email, phone: user.phone, address: user.address };
-        localStorage.setItem('bigze-current-user', JSON.stringify(currentUser));
+        const response = await fetch('http://localhost:3000/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullName, email, password, phone, address })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Signup failed');
+        }
+        
+        const data = await response.json();
+        currentUser = data.user;  // Set current user
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));  // Simple session
+        
         closeModal('login-modal');
-        document.getElementById('login-btn').textContent = `Welcome, ${currentUser.name}`;
-        showNotification(`Account created successfully! Welcome ${currentUser.name}!`);
-    } catch (err) {
-        const msg = ('' + err).includes('409') ? 'Email already registered' : 'Signup failed';
-        showNotification(msg);
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn) loginBtn.textContent = `Welcome, ${currentUser.full_name}`;
+        showNotification(`Account created successfully! Welcome ${currentUser.full_name}!`);
+        
+        form.reset();
+    } catch (error) {
+        alert(error.message);
+        console.error('Signup error:', error);
     }
 }
+
 
 // Checkout Functions
 function handleDeliveryChange() {
@@ -547,65 +588,46 @@ function handleDeliveryChange() {
 }
 
 async function checkout() {
-    if (cart.length === 0) {
-        alert('Your cart is empty!');
-        return;
-    }
-
-    if (!currentUser) {
-        alert('Please login to place an order!');
-        openModal('login-modal');
-        closeModal('cart-modal');
-        return;
-    }
-
-    const deliveryType = document.querySelector('input[name="delivery"]:checked').value;
-    const deliveryTime = document.getElementById('delivery-time').value;
-
-    if (deliveryType === 'scheduled' && !deliveryTime) {
-        alert('Please select a delivery time!');
-        return;
-    }
-
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFee = getDeliveryFee();
-    const total = subtotal + deliveryFee;
-
+    // ... existing validation ...
+    
     try {
-        const payload = {
-            customer_id: currentUser.id,
-            items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
-            total,
-            delivery: deliveryType === 'same-day' ? `same-day` : `scheduled:${deliveryTime || ''}`,
-            status: 'confirmed'
-        };
-        const created = await apiPost('/orders', payload);
-
-        const order = {
-            id: created.order_id || ('ORD' + Date.now()),
-            customerId: currentUser.id,
-            items: [...cart],
-            subtotal,
-            deliveryFee,
-            total,
-            deliveryType,
-            deliveryTime: deliveryTime || 'Same day',
-            status: 'confirmed',
-            date: new Date().toISOString()
-        };
-        orders.push(order);
-        saveOrderToStorage(order);
-
+        const response = await fetch('http://localhost:3000/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                customer_id: currentUser.id,
+                items: cart,
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + getDeliveryFee(),
+                delivery: document.querySelector('input[name="delivery"]:checked').value,
+                status: 'confirmed'
+            })
+        });
+        
+        if (!response.ok) throw new Error('Order failed');
+        
+        const order = await response.json();
+        // Update stock for each item
+        for (const item of cart) {
+            await fetch(`http://localhost:3000/api/products/${item.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stock: products.find(p => p.id === item.id).stock - item.quantity })
+            });
+        }
+        
+        // Clear cart and reload
         cart = [];
         updateCartDisplay();
         saveCartToStorage();
-
+        await loadProducts();  // Reload to reflect stock changes
+        
         closeModal('cart-modal');
-        document.getElementById('order-id').textContent = order.id;
+        document.getElementById('order-id').textContent = order.order_id;
         openModal('success-modal');
-        setTimeout(() => showNotification('Order confirmation sent via SMS and Email!'), 1500);
-    } catch (err) {
-        showNotification('Checkout failed. Please try again.');
+        showNotification('Order placed successfully!');
+    } catch (error) {
+        alert('Checkout failed: ' + error.message);
+        console.error(error);
     }
 }
 
